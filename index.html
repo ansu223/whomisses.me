@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Pulse — Connect Deeper</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             margin: 0;
@@ -25,7 +26,7 @@
             position: relative;
         }
 
-        /* Live Activity Ticker - Fixed */
+        /* Live Activity Ticker */
         .ticker {
             background: linear-gradient(90deg, #ff2d55, #ff6b6b);
             padding: 10px 16px;
@@ -759,8 +760,8 @@
                 <h2 id="profileName">Alex Morgan</h2>
                 <p id="profileBio" style="opacity: 0.8; margin-top: 8px;">✨ Looking for meaningful connections ✨</p>
                 <div class="badge-container">
-                    <span class="achievement-badge">🔥 7 day streak</span>
-                    <span class="achievement-badge">💕 12 matches</span>
+                    <span class="achievement-badge" id="streakBadge">🔥 0 day streak</span>
+                    <span class="achievement-badge" id="matchBadge">💕 0 matches</span>
                     <span class="achievement-badge">⭐ Level 3</span>
                 </div>
             </div>
@@ -964,6 +965,28 @@
 <div id="notification" class="notification"></div>
 
 <script>
+    // ========== TELEGRAM WEBAPP INTEGRATION ==========
+    const tg = window.Telegram?.WebApp;
+    let telegramUser = null;
+    
+    if (tg) {
+        tg.expand(); // Expand to full screen
+        tg.enableClosingConfirmation(); // Ask before closing
+        tg.ready(); // Notify Telegram that app is ready
+        
+        // Get user info from Telegram
+        const user = tg.initDataUnsafe?.user;
+        if (user) {
+            telegramUser = user;
+            console.log('Telegram User:', user);
+        }
+        
+        // Handle theme colors
+        if (tg.themeParams) {
+            document.body.style.backgroundColor = tg.themeParams.bg_color || '#0a0a0a';
+        }
+    }
+
     // ========== FRIENDS PROFILES ==========
     const friendProfiles = [
         { id: 1, name: 'Alexander Chen', mbti: 'INFJ', gender: 'male', age: '25-32', bio: 'Deep conversations, art, and psychology. Looking for meaningful friendships.', avatar: '🌊', occupation: 'Psychologist', interests: ['Meditation', 'Writing', 'Philosophy'], online: true },
@@ -1007,7 +1030,7 @@
         bio: '✨ Looking for meaningful connections ✨',
         mbti: 'INFJ',
         age: '25-32',
-        name: 'Alex Morgan'
+        name: telegramUser?.first_name || 'Alex Morgan'
     };
     
     let visitors = [
@@ -1092,6 +1115,8 @@
         document.getElementById('statMatches').innerHTML = matches.length;
         document.getElementById('statPosts').innerHTML = posts.length;
         document.getElementById('statVisitors').innerHTML = visitors.filter(v => v.viewed).length;
+        document.getElementById('streakBadge').innerHTML = `🔥 ${user.streak} day streak`;
+        document.getElementById('matchBadge').innerHTML = `💕 ${matches.length} matches`;
         
         let youOnBoard = leaderboard.find(l => l.name === 'You');
         if (youOnBoard) youOnBoard.streak = user.streak;
@@ -1580,6 +1605,12 @@
     
     // ========== INITIALIZE ==========
     function init() {
+        // Set Telegram user name if available
+        if (telegramUser) {
+            document.getElementById('profileName').innerText = telegramUser.first_name || 'Alex Morgan';
+            user.name = telegramUser.first_name || 'Alex Morgan';
+        }
+        
         checkStreak();
         renderVisitors();
         updateCoinDisplay();
@@ -1603,6 +1634,7 @@
         renderPosts();
         renderFriendProfiles();
         renderConversations();
+        updateProfileStats();
         
         // Tab switching
         document.querySelectorAll('.tab-item').forEach(btn => {
@@ -1720,8 +1752,24 @@
         });
         
         document.getElementById('buyCoinsBtn').addEventListener('click', () => {
-            let amount = prompt('Demo: How many coins? (10 coins = 1 Star)');
-            if (amount) { user.coins += parseInt(amount); updateCoinDisplay(); showToast(`✨ +${amount} coins!`); }
+            if (tg) {
+                // Show Telegram Stars purchase dialog
+                tg.showPopup({
+                    title: 'Buy Coins',
+                    message: '10 coins = 1 Telegram Star',
+                    buttons: [
+                        { type: 'default', text: 'Buy 50 ⭐' },
+                        { type: 'default', text: 'Buy 100 ⭐' },
+                        { type: 'cancel' }
+                    ]
+                }, (buttonId) => {
+                    if (buttonId === '0') { user.coins += 50; updateCoinDisplay(); showToast('✨ +50 coins! ✨'); }
+                    if (buttonId === '1') { user.coins += 100; updateCoinDisplay(); showToast('✨ +100 coins! ✨'); }
+                });
+            } else {
+                let amount = prompt('Demo: How many coins? (10 coins = 1 Star)');
+                if (amount) { user.coins += parseInt(amount); updateCoinDisplay(); showToast(`✨ +${amount} coins! ✨`); }
+            }
         });
         
         // Chats
@@ -1735,15 +1783,13 @@
         document.getElementById('sendChatBtn').addEventListener('click', sendChatMessage);
         document.getElementById('chatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChatMessage(); });
         
-        updateProfileStats();
+        // Send ready signal to Telegram
+        if (tg) {
+            tg.ready();
+        }
     }
     
     init();
-    
-    if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.expand();
-        window.Telegram.WebApp.enableClosingConfirmation();
-    }
 </script>
 </body>
 </html>
