@@ -1,1102 +1,557 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>Pulse — Connect Deeper</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-    <!-- INTEGRATED TELEGRAM ADS (RichMedia) -->
-    <script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
-    <script>
-        (function() {
-            try {
-                window.TelegramAdsController = new TelegramAdsController();
-                window.TelegramAdsController.initialize({
-                    pubId: "996079",
-                    appId: "7114",
-                });
-                console.log("[Ads] Telegram Ads Controller initialized");
-            } catch(e) {
-                console.warn("[Ads] Initialization error (non-critical):", e);
-            }
-        })();
-    </script>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #0a0a0a;
-            color: #fff;
-            overflow-x: hidden;
-        }
-
-        .app {
-            max-width: 500px;
-            margin: 0 auto;
-            background: #0a0a0a;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* Ticker */
-        .ticker {
-            background: linear-gradient(90deg, #ff2d55, #ff6b6b);
-            padding: 10px 16px;
-            overflow: hidden;
-            white-space: nowrap;
-            position: sticky;
-            top: 0;
-            z-index: 99;
-            pointer-events: none;
-        }
-
-        .ticker-content {
-            display: inline-block;
-            animation: tickerScroll 20s linear infinite;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        @keyframes tickerScroll {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        /* Tab Bar */
-        .tab-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-width: 500px;
-            margin: 0 auto;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(20px);
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 20px 26px;
-            border-top: 0.5px solid rgba(255, 45, 85, 0.15);
-            z-index: 100;
-        }
-
-        .tab-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            background: none;
-            border: none;
-            color: #666;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.2s;
-            padding: 6px 12px;
-            border-radius: 30px;
-            position: relative;
-        }
-
-        .tab-item.active {
-            color: #ff2d55;
-            background: rgba(255, 45, 85, 0.1);
-        }
-
-        .badge-count {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ff2d55;
-            color: white;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            min-width: 18px;
-        }
-
-        .tab-icon {
-            font-size: 24px;
-        }
-
-        .content {
-            padding: 20px 16px 100px;
-        }
-
-        .page {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Cards */
-        .card {
-            background: rgba(30, 30, 45, 0.9);
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255, 45, 85, 0.08);
-            cursor: pointer;
-            transition: transform 0.1s ease;
-        }
-
-        .card:active {
-            transform: scale(0.98);
-        }
-
-        /* Profile Header */
-        .profile-header {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            border-radius: 24px;
-            padding: 24px;
-            margin-bottom: 16px;
-            text-align: center;
-            border: 1px solid rgba(255, 45, 85, 0.1);
-        }
-
-        .profile-avatar-large {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            margin: 0 auto 16px;
-            border: 3px solid rgba(255, 45, 85, 0.3);
-        }
-
-        .profile-stats {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px 0;
-            padding: 16px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ff2d55;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            opacity: 0.7;
-            margin-top: 4px;
-        }
-
-        .badge-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            margin: 16px 0;
-        }
-
-        .achievement-badge {
-            background: rgba(255, 45, 85, 0.15);
-            border-radius: 20px;
-            padding: 6px 12px;
-            font-size: 11px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* Streak Card */
-        .streak-card {
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            text-align: center;
-            cursor: default;
-        }
-        
-        .streak-card:active {
-            transform: none;
-        }
-
-        .streak-fire {
-            font-size: 48px;
-            animation: flameFlicker 0.5s ease-in-out infinite alternate;
-        }
-
-        @keyframes flameFlicker {
-            from { transform: scale(1); opacity: 0.8; }
-            to { transform: scale(1.1); opacity: 1; }
-        }
-
-        /* Visitor Cards */
-        .visitor-card {
-            background: rgba(30, 30, 45, 0.9);
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .visitor-card.blurred {
-            filter: blur(8px);
-            pointer-events: none;
-        }
-
-        .unlock-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 16px;
-            cursor: pointer;
-            pointer-events: auto;
-            z-index: 10;
-        }
-
-        .unlock-btn {
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: bold;
-            pointer-events: auto;
-            cursor: pointer;
-        }
-
-        /* Match Cards */
-        .match-card {
-            background: rgba(30, 30, 45, 0.9);
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 12px;
-            position: relative;
-            cursor: pointer;
-            border: 1px solid rgba(255, 45, 85, 0.08);
-            transition: transform 0.1s ease;
-        }
-
-        .match-card:active {
-            transform: scale(0.98);
-        }
-
-        .match-card.urgent {
-            border: 1px solid #ff2d55;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 45, 85, 0.4); }
-            50% { box-shadow: 0 0 0 5px rgba(255, 45, 85, 0); }
-        }
-
-        .countdown-timer {
-            font-size: 12px;
-            color: #ff2d55;
-            margin-top: 8px;
-        }
-
-        .extend-btn {
-            background: rgba(255,45,85,0.2);
-            border: none;
-            color: #ff2d55;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            cursor: pointer;
-            margin-left: 8px;
-            pointer-events: auto;
-        }
-
-        /* Chat Components */
-        .chat-container {
-            height: 500px;
-            display: flex;
-            flex-direction: column;
-            background: rgba(0,0,0,0.3);
-            border-radius: 24px;
-            overflow: hidden;
-        }
-
-        .messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 20px;
-            font-size: 15px;
-            line-height: 1.4;
-            position: relative;
-        }
-
-        .message.sent {
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message.received {
-            background: rgba(255, 255, 255, 0.1);
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-        }
-
-        .reactions {
-            position: absolute;
-            bottom: -15px;
-            right: 0;
-            display: flex;
-            gap: 4px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .message:hover .reactions {
-            opacity: 1;
-        }
-
-        .reaction-btn {
-            background: rgba(30,30,45,0.9);
-            border: none;
-            border-radius: 20px;
-            padding: 2px 6px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .chat-input {
-            display: flex;
-            gap: 10px;
-            padding: 12px;
-            background: rgba(30, 30, 45, 0.9);
-            border-radius: 40px;
-            margin: 12px;
-        }
-
-        .chat-input input {
-            flex: 1;
-            background: none;
-            border: none;
-            color: white;
-            padding: 10px;
-            font-size: 16px;
-            outline: none;
-        }
-
-        .chat-input button {
-            background: none;
-            border: none;
-            color: #ff2d55;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 0 12px;
-        }
-
-        .timer {
-            font-size: 48px;
-            font-weight: 800;
-            font-family: monospace;
-            text-align: center;
-            margin: 20px 0;
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        /* Profile Card */
-        .profile-card {
-            background: rgba(30, 30, 45, 0.9);
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 12px;
-            border: 1px solid rgba(255, 45, 85, 0.08);
-            cursor: pointer;
-            transition: transform 0.1s ease;
-        }
-
-        .profile-card:active {
-            transform: scale(0.98);
-        }
-
-        .profile-badge {
-            font-size: 11px;
-            color: #ff2d55;
-            background: rgba(255,45,85,0.15);
-            padding: 4px 8px;
-            border-radius: 12px;
-            display: inline-block;
-        }
-
-        .romantic-badge {
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            display: inline-block;
-            margin-left: 8px;
-        }
-
-        .friend-badge {
-            background: rgba(74, 106, 154, 0.8);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            display: inline-block;
-            margin-left: 8px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-        }
-
-        .like-btn {
-            background: none;
-            border: 1.5px solid #ff2d55;
-            color: #ff2d55;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            cursor: pointer;
-            flex: 1;
-            transition: all 0.2s;
-        }
-
-        .like-btn.liked {
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            color: white;
-            border: none;
-        }
-
-        .chat-btn {
-            background: rgba(74, 74, 106, 0.8);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            cursor: pointer;
-            flex: 1;
-            transition: all 0.2s;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            color: white;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.1s ease;
-        }
-
-        .btn:active {
-            transform: scale(0.97);
-        }
-
-        .btn-secondary {
-            background: rgba(42, 42, 58, 0.9);
-        }
-
-        .gender-selector {
-            display: flex;
-            gap: 12px;
-            margin: 20px 0;
-        }
-
-        .gender-option {
-            flex: 1;
-            padding: 14px;
-            background: rgba(30, 30, 45, 0.9);
-            border-radius: 40px;
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid rgba(255,45,85,0.15);
-            transition: all 0.2s;
-        }
-
-        .gender-option.selected {
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-        }
-
-        .filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-        }
-
-        .chip {
-            padding: 8px 16px;
-            background: rgba(30, 30, 45, 0.9);
-            border-radius: 30px;
-            font-size: 14px;
-            white-space: nowrap;
-            cursor: pointer;
-            border: 1px solid rgba(255,45,85,0.15);
-            transition: all 0.2s;
-        }
-
-        .chip.active {
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            color: white;
-        }
-
-        /* Post Components */
-        .post-card {
-            background: rgba(30, 30, 45, 0.9);
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 12px;
-            border: 1px solid rgba(255, 45, 85, 0.08);
-        }
-
-        .post-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .post-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-right: 12px;
-        }
-
-        .post-content {
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 12px;
-        }
-
-        .post-stats {
-            display: flex;
-            gap: 20px;
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255,45,85,0.08);
-        }
-
-        .post-actions {
-            display: flex;
-            gap: 20px;
-        }
-
-        .post-action-btn {
-            background: none;
-            border: none;
-            color: #888;
-            font-size: 14px;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-
-        .post-action-btn.liked {
-            color: #ff2d55;
-        }
-
-        .comments-section {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255,45,85,0.08);
-        }
-
-        .comment {
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            padding: 8px 12px;
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
-
-        .add-comment {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .comment-input {
-            flex: 1;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,45,85,0.15);
-            border-radius: 20px;
-            padding: 8px 12px;
-            color: white;
-            font-size: 13px;
-            outline: none;
-        }
-
-        .comment-btn {
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.95);
-            padding: 14px 20px;
-            border-radius: 60px;
-            text-align: center;
-            font-size: 14px;
-            z-index: 200;
-            transform: translateY(100px);
-            transition: transform 0.3s;
-            pointer-events: none;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-        }
-
-        .notification {
-            position: fixed;
-            top: 60px;
-            right: 20px;
-            left: 20px;
-            max-width: 460px;
-            margin: 0 auto;
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            padding: 12px 16px;
-            border-radius: 16px;
-            z-index: 200;
-            transform: translateX(400px);
-            transition: transform 0.3s;
-            cursor: pointer;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .completion-bar {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            height: 8px;
-            overflow: hidden;
-            margin: 8px 0;
-        }
-
-        .completion-fill {
-            background: linear-gradient(90deg, #ff2d55, #ff6b6b);
-            height: 100%;
-            transition: width 0.3s;
-        }
-
-        .leaderboard-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px;
-            border-bottom: 1px solid rgba(255,45,85,0.08);
-        }
-
-        .rank-badge {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ff2d55, #ff6b6b);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .typing-indicator {
-            display: flex;
-            gap: 4px;
-            padding: 8px 12px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px;
-            width: fit-content;
-        }
-
-        .typing-dot {
-            width: 6px;
-            height: 6px;
-            background: white;
-            border-radius: 50%;
-            animation: typing 1.4s infinite;
-        }
-
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-5px); }
-        }
-
-        .conversation-item {
-            background: rgba(30, 30, 45, 0.9);
-            border-radius: 16px;
-            padding: 12px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            border: 1px solid rgba(255,45,85,0.08);
-            transition: transform 0.1s ease;
-        }
-
-        .conversation-item:active {
-            transform: scale(0.98);
-        }
-
-        select, input, textarea {
-            background: rgba(30,30,45,0.9);
-            color: white;
-            border: 1px solid rgba(255,45,85,0.15);
-            padding: 12px;
-            border-radius: 40px;
-            font-size: 14px;
-        }
-
-        button {
-            cursor: pointer;
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #ff2d55;
-            border-radius: 4px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Who Misses You? 💌 | Reveal The Truth</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #fce4ec 0%, #ffe9e4 100%);
+      font-family: 'Segoe UI', 'Quicksand', system-ui, -apple-system, 'Poppins', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    .quiz-card {
+      max-width: 650px;
+      width: 100%;
+      background: rgba(255, 248, 245, 0.96);
+      backdrop-filter: blur(2px);
+      border-radius: 3rem;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 8px 18px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .quiz-header {
+      background: #ffb7c5;
+      padding: 2rem 2rem 1.5rem;
+      text-align: center;
+      color: #2d1b2e;
+    }
+
+    .quiz-header h1 {
+      font-size: 2.4rem;
+      letter-spacing: -0.5px;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .quiz-header p {
+      font-size: 1.1rem;
+      opacity: 0.85;
+      font-weight: 500;
+    }
+
+    .progress-container {
+      background: #ffdfe4;
+      border-radius: 40px;
+      margin: 1.5rem 2rem 0.5rem 2rem;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      background: #e8436e;
+      width: 0%;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .step-counter {
+      text-align: right;
+      font-size: 0.8rem;
+      padding: 0 2rem 0.5rem;
+      color: #b95c72;
+      font-weight: 600;
+    }
+
+    .quiz-body {
+      padding: 1.8rem 2rem 2rem;
+    }
+
+    .question-text {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 1.8rem;
+      color: #2c1a2d;
+      line-height: 1.3;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    .option-btn {
+      background: #fff0f2;
+      border: 1.5px solid #ffc0cb;
+      border-radius: 60px;
+      padding: 1rem 1.2rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #3b2a3a;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .option-btn:hover {
+      background: #ffe2e8;
+      border-color: #e85d8a;
+      transform: scale(0.98);
+    }
+
+    .option-btn.selected {
+      background: #e8436e;
+      border-color: #e8436e;
+      color: white;
+      box-shadow: 0 8px 14px -8px rgba(232, 67, 110, 0.4);
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.8rem;
+      gap: 1rem;
+    }
+
+    .btn {
+      border: none;
+      background: #f3cdd4;
+      padding: 0.8rem 1.6rem;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: #e8436e;
+      color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-primary:hover {
+      background: #d62b5a;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #ffe0e5;
+      color: #6b3e4a;
+    }
+
+    .btn-secondary:hover {
+      background: #ffd0d8;
+    }
+
+    .pre-result-box, .result-box {
+      text-align: center;
+      background: #fff7f9;
+      border-radius: 2rem;
+      padding: 2rem 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .progress-ring {
+      margin: 1rem auto;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 5px solid #ffcdd9;
+      border-top: 5px solid #e8436e;
+      animation: spin 1s infinite linear;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .timer-box {
+      background: #ffeef2;
+      border-radius: 60px;
+      padding: 0.75rem 1rem;
+      margin: 1.2rem 0;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #b13e62;
+    }
+
+    .offer-btn {
+      background: #ffd966;
+      border: none;
+      border-radius: 60px;
+      padding: 1rem;
+      font-weight: 800;
+      font-size: 1.2rem;
+      width: 100%;
+      margin-top: 0.75rem;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #3b2a2a;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    .offer-btn:hover {
+      background: #ffcd3c;
+      transform: scale(0.98);
+    }
+
+    .result-text {
+      font-size: 1.7rem;
+      font-weight: 800;
+      margin: 1rem 0;
+      background: #ffecf0;
+      padding: 1.2rem;
+      border-radius: 3rem;
+      line-height: 1.3;
+    }
+
+    .restart-btn {
+      background: #e8436e;
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 0.8rem 1.5rem;
+      margin-top: 1.8rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    footer {
+      font-size: 0.7rem;
+      text-align: center;
+      padding: 1rem;
+      background: #ffebed;
+      color: #a55a6e;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 500px) {
+      .quiz-body {
+        padding: 1.5rem;
+      }
+      .question-text {
+        font-size: 1.4rem;
+      }
+      .result-text {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
 </head>
 <body>
-<div class="app">
-    <div class="ticker">
-        <div class="ticker-content" id="ticker">
-            🔥 247 online • ✨ Sophia matched with James • 🌟 Riley joined • 💕 12 new matches
-        </div>
-    </div>
+<div class="quiz-card" id="quizApp">
+  <div class="quiz-header">
+    <h1>💌 Who misses you? <span>🔮</span></h1>
+    <p>Answer 5 quick questions — someone real is thinking about you right now.</p>
+  </div>
+  <div class="progress-container">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  <div class="step-counter" id="stepCounter">Question 1 / 5</div>
 
-    <div class="content">
-        <!-- Profile Page -->
-        <div id="page0" class="page">
-            <div class="profile-header">
-                <div class="profile-avatar-large" id="profileAvatar">👤</div>
-                <h2 id="profileName">Loading...</h2>
-                <p id="profileBio" style="opacity: 0.8; margin-top: 8px;">✨ Looking for meaningful connections ✨</p>
-                <div class="badge-container">
-                    <span class="achievement-badge" id="streakBadge">🔥 0 day streak</span>
-                    <span class="achievement-badge" id="matchBadge">💕 0 matches</span>
-                    <span class="achievement-badge">⭐ Level 3</span>
-                </div>
-            </div>
-
-            <div class="profile-stats">
-                <div class="stat-item">
-                    <div class="stat-number" id="statMatches">0</div>
-                    <div class="stat-label">Matches</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="statPosts">0</div>
-                    <div class="stat-label">Posts</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="statStreak">0</div>
-                    <div class="stat-label">Day Streak</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="statVisitors">0</div>
-                    <div class="stat-label">Visitors</div>
-                </div>
-            </div>
-
-            <div class="streak-card card">
-                <div class="streak-fire">🔥</div>
-                <h3 id="streakCount">0 Day Streak!</h3>
-                <p>Login tomorrow for day <span id="nextStreak">1</span>!</p>
-                <div id="chestReward" style="display: none;">🎁 Chest opened! +10 coins!</div>
-            </div>
-
-            <div class="card">
-                <h4>Profile Strength</h4>
-                <div class="completion-bar">
-                    <div class="completion-fill" id="completionFill" style="width: 72%"></div>
-                </div>
-                <p id="completionText" style="margin-top: 8px;">72% complete — add a bio to attract more matches.</p>
-                <button class="btn-secondary btn" id="completeProfileBtn" style="margin-top: 12px;">Complete Profile →</button>
-            </div>
-
-            <div class="card">
-                <h4>👀 Who viewed you</h4>
-                <div id="visitorsList"></div>
-            </div>
-
-            <div class="card">
-                <h4>🏆 Top Streaks</h4>
-                <div id="leaderboardList"></div>
-            </div>
-
-            <div class="card">
-                <h4>💰 Your Balance</h4>
-                <p style="font-size: 32px; font-weight: bold;" id="coinBalance">0</p>
-                <button class="btn-secondary btn" id="buyCoinsBtn">Buy Coins (Telegram Stars)</button>
-            </div>
-        </div>
-
-        <!-- Dating Page -->
-        <div id="page1" class="page active">
-            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
-                <h2 style="font-size: 28px; font-weight: 700;">Date 💕</h2>
-                <span class="status-badge" id="roomStatusText" style="background: rgba(255,45,85,0.15); padding: 6px 12px; border-radius: 20px; font-size: 12px;">Finding dates...</span>
-            </div>
-
-            <div id="joinScreen">
-                <div class="card">
-                    <div style="text-align: center; font-size: 64px; margin-bottom: 16px;">💕</div>
-                    <h3 style="text-align: center; margin-bottom: 20px;">Romantic 3v3 Dating</h3>
-                    <p style="text-align: center; opacity: 0.7; margin-bottom: 24px;">Men & Women only • 3 minutes • Find your spark ✨</p>
-                    
-                    <div class="gender-selector">
-                        <div class="gender-option" data-gender="male">👨 Gentleman</div>
-                        <div class="gender-option" data-gender="female">👩 Lady</div>
-                    </div>
-                    
-                    <button class="btn" id="joinBtn">Find a Date →</button>
-                </div>
-                
-                <div class="card" style="text-align: center;">
-                    <div id="queueCount">Looking for romantic connections...</div>
-                    <div style="font-size: 12px; margin-top: 12px; opacity: 0.5;">✨ Men date women • Women date men</div>
-                </div>
-            </div>
-
-            <div id="chatScreen" style="display: none;">
-                <div class="card" style="text-align: center;">
-                    <div class="timer" id="timer">03:00</div>
-                    <div style="font-size: 14px; opacity: 0.7;">Romantic chat • Be yourself 💕</div>
-                </div>
-                
-                <div class="chat-container">
-                    <div class="messages" id="messages">
-                        <div class="message received">✨ Welcome to your romantic date! 3 minutes to connect! ✨</div>
-                    </div>
-                    <div class="chat-input">
-                        <input type="text" id="messageInput" placeholder="Say something romantic..." autocomplete="off">
-                        <button id="sendBtn">➤</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="votingScreen" style="display: none;">
-                <div class="card" style="text-align: center;">
-                    <h3 style="margin-bottom: 20px;">💕 Who stole your heart?</h3>
-                    <div id="voteOptions"></div>
-                    <button class="btn" id="submitVoteBtn" style="margin-top: 20px;">Choose →</button>
-                </div>
-            </div>
-
-            <div id="resultScreen" style="display: none;">
-                <div class="card" style="text-align: center;">
-                    <div style="font-size: 80px; margin-bottom: 20px;" id="resultEmoji">🤞</div>
-                    <h3 id="resultText">Checking...</h3>
-                    <button class="btn btn-secondary" id="newGameBtn" style="margin-top: 24px;">New Date →</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Friends Page -->
-        <div id="page2" class="page">
-            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
-                <h2 style="font-size: 28px; font-weight: 700;">Friends 🧠</h2>
-                <span class="status-badge" id="mbtiBadge" style="background: rgba(255,45,85,0.15); padding: 6px 12px; border-radius: 20px; font-size: 12px;">INFJ</span>
-            </div>
-
-            <div class="card">
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <select id="mbtiSelect" style="flex: 1;">
-                        <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
-                        <option selected>INFJ</option><option>INFP</option><option>ENFJ</option><option>ENFP</option>
-                        <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
-                        <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
-                    </select>
-                    <select id="ageSelect">
-                        <option>18-24</option><option>25-32</option><option>33-40</option><option>40+</option>
-                    </select>
-                    <button class="btn" id="updateProfileBtn" style="width: auto; padding: 12px 20px;">Save</button>
-                </div>
-            </div>
-
-            <div class="filters">
-                <div class="chip active" data-filter="all">All Friends</div>
-                <div class="chip" data-filter="male">Men</div>
-                <div class="chip" data-filter="female">Women</div>
-                <div class="chip" data-filter="nonbinary">Non-binary</div>
-            </div>
-
-            <div id="profilesList"></div>
-        </div>
-
-        <!-- Feed Page -->
-        <div id="page3" class="page">
-            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
-                <h2 style="font-size: 28px; font-weight: 700;">Feed 📱</h2>
-                <span class="status-badge" id="postCount" style="background: rgba(255,45,85,0.15); padding: 6px 12px; border-radius: 20px; font-size: 12px;">0 posts</span>
-            </div>
-
-            <div style="background: rgba(30,30,45,0.9); border-radius: 20px; padding: 16px; margin-bottom: 20px;">
-                <textarea id="postContent" rows="3" placeholder="Share something with your friends... 🌟" style="width: 100%; margin-bottom: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,45,85,0.15); border-radius: 16px; padding: 12px; color: white; resize: vertical;"></textarea>
-                <button class="btn" id="createPostBtn">Create Post ✨</button>
-            </div>
-
-            <div id="postsList"></div>
-        </div>
-
-        <!-- Chats Page -->
-        <div id="page4" class="page">
-            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
-                <h2 style="font-size: 28px; font-weight: 700;">Chats 💬</h2>
-                <span class="status-badge" id="conversationCount" style="background: rgba(255,45,85,0.15); padding: 6px 12px; border-radius: 20px; font-size: 12px;">0 chats</span>
-            </div>
-            <div id="conversationsList"></div>
-            <div id="activeChatView" style="display: none;">
-                <div class="chat-container" style="height: 550px;">
-                    <div class="messages" id="chatMessages"></div>
-                    <div class="chat-input">
-                        <input id="chatInput" placeholder="Type a message..." autocomplete="off">
-                        <button id="sendChatBtn">➤</button>
-                    </div>
-                </div>
-                <button id="backToConversations" class="btn-secondary btn" style="margin-top: 12px;">← Back</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="tab-bar">
-        <button class="tab-item" data-page="0"><span class="tab-icon">👤</span><span>Me</span></button>
-        <button class="tab-item active" data-page="1"><span class="tab-icon">💕</span><span>Date</span></button>
-        <button class="tab-item" data-page="2"><span class="tab-icon">🧠</span><span>Friends</span></button>
-        <button class="tab-item" data-page="3"><span class="tab-icon">📱</span><span>Feed</span></button>
-        <button class="tab-item" data-page="4"><span class="tab-icon">💬</span><span>Chats</span><span id="chatBadge" class="badge-count" style="display: none;">0</span></button>
-    </div>
+  <div class="quiz-body" id="quizBody"></div>
+  <footer>💖 Complete the quick task below to reveal exactly who misses you — Mom, Dad, Ex, Best friend, or even your dog!</footer>
 </div>
 
-<div id="toast" class="toast"></div>
-<div id="notification" class="notification"></div>
-
 <script>
-    (function() {
-        // Telegram WebApp & Full previous app logic (condensed for brevity but fully functional)
-        const tg = window.Telegram?.WebApp;
-        let telegramUser = tg?.initDataUnsafe?.user || null;
-        if(tg) { tg.expand(); tg.enableClosingConfirmation(); tg.ready(); }
+  // ----------------------------------------------
+  // QUIZ QUESTIONS
+  // ----------------------------------------------
+  const QUESTIONS = [
+    {
+      text: "Who was on your mind recently?",
+      options: ["An old friend", "My ex", "A family member", "My dog / cat"]
+    },
+    {
+      text: "What time do you feel most emotional?",
+      options: ["Early morning", "Late night", "Random moments", "When I'm alone"]
+    },
+    {
+      text: "What message would affect you the most?",
+      options: ["“I miss you”", "“Can we talk?”", "“Thinking of you”", "“Come back”"]
+    },
+    {
+      text: "Choose a color that speaks to you:",
+      options: ["❤️ Red – passion", "💙 Blue – nostalgia", "💚 Green – loyalty", "🐾 Warm Brown – unconditional love"]
+    },
+    {
+      text: "Are you ready for the truth?",
+      options: ["Yes", "Maybe", "Nervous but excited", "Absolutely!"]
+    }
+  ];
+
+  // ----------------------------------------------
+  // REAL PERSON/ANIMAL RESULTS
+  // ----------------------------------------------
+  const REAL_RESULTS = [
+    { name: "💖 Your Mom", message: "Your mom has been thinking about you non-stop. She misses your laugh and hopes you call her soon. She loves you more than words can say." },
+    { name: "💪 Your Dad", message: "Your dad misses you more than he shows. He's proud of you and wishes you'd spend more time together. Send him a message today." },
+    { name: "💔 Your Ex", message: "Yes, your ex misses you. They've been reminiscing about the good times and wondering if you ever think about them too." },
+    { name: "🐶 Your Dog", message: "Your dog goes crazy every time someone mentions your name. That tail wags just for you — they miss you like crazy!" },
+    { name: "🐱 Your Cat", message: "Your cat might act independent, but deep down they miss your warmth and late-night cuddles. They've been waiting by the door." },
+    { name: "👯 Your Best Friend", message: "Your best friend misses your energy and inside jokes. They keep saying 'I wish (your name) was here'. Text them now!" },
+    { name: "👵 Your Grandparent", message: "Your grandparent talks about you all the time. They miss your visits and would love to hear your voice again." }
+  ];
+
+  let currentStep = 0;
+  let answers = new Array(5).fill(null);
+  let quizCompleted = false;
+  let isInPreResult = false;
+  let isResultUnlocked = false;
+
+  // DOM elements
+  const quizBody = document.getElementById('quizBody');
+  const progressFill = document.getElementById('progressFill');
+  const stepCounterSpan = document.getElementById('stepCounter');
+
+  function updateProgress() {
+    let percent = 0;
+    if (!quizCompleted) {
+      percent = (currentStep / QUESTIONS.length) * 100;
+    } else if (isInPreResult) {
+      percent = 97;
+    } else {
+      percent = 100;
+    }
+    progressFill.style.width = `${percent}%`;
+    if (!quizCompleted) {
+      stepCounterSpan.innerText = `Question ${currentStep+1} / ${QUESTIONS.length}`;
+    } else if (isInPreResult) {
+      stepCounterSpan.innerText = `✨ Almost there... 97%`;
+    } else {
+      stepCounterSpan.innerText = `🔓 Truth revealed`;
+    }
+  }
+
+  // Generate a consistent result based on answers (maps to a real person)
+  function determineWhoMissesYou() {
+    if (!answers.every(a => a !== null)) return 0;
+    let hash = 0;
+    for (let i = 0; i < answers.length; i++) {
+      const ans = answers[i] || "";
+      for (let c = 0; c < ans.length; c++) {
+        hash = ((hash << 5) - hash) + ans.charCodeAt(c);
+        hash |= 0;
+      }
+    }
+    // Bias based on first answer for emotional relevance
+    let idx = Math.abs(hash) % REAL_RESULTS.length;
+    if (answers[0] && answers[0].toLowerCase().includes("ex")) idx = 2;        // ex
+    if (answers[0] && answers[0].toLowerCase().includes("family")) idx = 0;    // mom (default family)
+    if (answers[0] && answers[0].toLowerCase().includes("dog")) idx = 3;       // dog
+    if (answers[0] && answers[0].toLowerCase().includes("cat")) idx = 4;       // cat
+    if (answers[0] && answers[0].toLowerCase().includes("friend")) idx = 5;    // best friend
+    if (answers[3] && answers[3].toLowerCase().includes("green")) idx = 1;     // dad
+    if (answers[3] && answers[3].toLowerCase().includes("brown")) idx = 3;     // dog
+    return idx;
+  }
+
+  function renderQuestion() {
+    if (quizCompleted) return;
+    const q = QUESTIONS[currentStep];
+    const selectedValue = answers[currentStep];
+    const optionsHtml = q.options.map((opt) => {
+      const isSelected = (selectedValue === opt);
+      return `<button class="option-btn ${isSelected ? 'selected' : ''}" data-opt="${opt.replace(/"/g, '&quot;')}">${opt}</button>`;
+    }).join('');
+
+    const navHtml = `
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" id="prevBtn" ${currentStep === 0 ? 'disabled' : ''}>← Back</button>
+        <button class="btn btn-primary" id="nextBtn">${currentStep === QUESTIONS.length-1 ? 'See who misses you ✨' : 'Next →'}</button>
+      </div>
+    `;
+
+    quizBody.innerHTML = `
+      <div class="question-text">${q.text}</div>
+      <div class="options-grid" id="optionsGrid">
+        ${optionsHtml}
+      </div>
+      ${navHtml}
+    `;
+
+    // attach event listeners to options
+    document.querySelectorAll('.option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const optText = btn.getAttribute('data-opt') || btn.innerText;
+        answers[currentStep] = optText;
+        renderQuestion();
+      });
+    });
+
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        if (answers[currentStep] === null) {
+          alert("💖 Please choose an answer before continuing.");
+          return;
+        }
+        if (currentStep === QUESTIONS.length-1) {
+          if (answers.every(a => a !== null)) {
+            quizCompleted = true;
+            showTaskToUnlock();
+          } else {
+            alert("Please complete all questions.");
+          }
+        } else {
+          currentStep++;
+          renderQuestion();
+          updateProgress();
+        }
+      });
+    }
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        if (currentStep > 0) {
+          currentStep--;
+          renderQuestion();
+          updateProgress();
+        }
+      });
+    }
+    updateProgress();
+  }
+
+  // ----------------------------------------------
+  // TASK PAGE (No free unlock, only task/CPA)
+  // ----------------------------------------------
+  function showTaskToUnlock() {
+    isInPreResult = true;
+    updateProgress();
+    
+    // store the person who misses the user
+    const resultIndex = determineWhoMissesYou();
+    window.finalPerson = REAL_RESULTS[resultIndex];
+    
+    quizBody.innerHTML = `
+      <div class="pre-result-box">
+        <div class="progress-ring"></div>
+        <h3 style="font-size: 1.8rem;">🔐 One step away</h3>
+        <p style="margin: 0.8rem 0 0.5rem; font-size:1.1rem;">We’ve matched your energy with someone <strong>real</strong> who misses you.<br>Complete the quick task below to reveal their name and message 💌</p>
         
-        // App state (matches, posts, friends, etc) — simplified but same as original robust implementation
-        // To maintain full functionality we preserve the core state and methods.
-        let user = { streak: 0, coins: 50, profileComplete: 72, mbti: 'INFJ', age: '25-32', name: telegramUser?.first_name || 'Pulse User', bio: '✨ Looking for meaningful connections ✨' };
-        let visitors = [{ name: 'Sophia', avatar: '🌸', time: '2h ago', viewed: true }, { name: 'James', avatar: '💼', time: '5h ago', viewed: true }, { name: 'Emma', avatar: '💕', time: '1d ago', viewed: false }, { name: 'Luna', avatar: '🌙', time: '2d ago', viewed: false }];
-        let matches = [], posts = [], friendLikes = [], currentConversation = null, unreadCount = 0;
-        let selectedGender = null, activeBots = [], inChat = false, timeLeft = 180, currentVote = null, roomQueue = { men: 0, women: 0 };
-        let leaderboard = [{ name: 'Alex', streak: 45, avatar: '🔥' }, { name: 'Sophia', streak: 32, avatar: '🌸' }, { name: 'James', streak: 28, avatar: '💼' }, { name: 'Emma', streak: 21, avatar: '💕' }, { name: 'You', streak: 0, avatar: '👤' }];
-        let genderFilter = 'all';
-        const friendProfiles = [
-            { id: 1, name: 'Alexander Chen', mbti: 'INFJ', gender: 'male', age: '25-32', bio: 'Deep conversations', avatar: '🌊', occupation: 'Psychologist', online: true },
-            { id: 2, name: 'Jamie Kaelen', mbti: 'INFJ', gender: 'nonbinary', age: '18-24', bio: 'Empath, writer', avatar: '✨', occupation: 'Student', online: true },
-            { id: 3, name: 'Taylor Morgan', mbti: 'ENFP', gender: 'female', age: '25-32', bio: 'Adventure seeker', avatar: '🌸', occupation: 'Marketing', online: false },
-            { id: 4, name: 'Jordan Reeves', mbti: 'INTJ', gender: 'male', age: '33-40', bio: 'Strategist', avatar: '♟️', occupation: 'Entrepreneur', online: true },
-            { id: 5, name: 'Casey Martinez', mbti: 'INFP', gender: 'female', age: '18-24', bio: 'Poet, dreamer', avatar: '⭐', occupation: 'Artist', online: false },
-            { id: 6, name: 'Riley Santos', mbti: 'INFJ', gender: 'female', age: '25-32', bio: 'Therapist-in-training', avatar: '🌿', occupation: 'Counselor', online: true }
-        ];
-        const romanticBots = { male: [{ id: 'rm1', name: 'Sophia', avatar: '🌸', messages: ['Hi handsome 😊'] }], female: [{ id: 'rf1', name: 'James', avatar: '💼', messages: ['You look beautiful tonight ✨'] }] };
+        <div style="background: #fff0f5; border-radius: 1.5rem; padding: 1.2rem; margin: 1.5rem 0;">
+          <p style="font-weight:700; margin-bottom: 0.5rem;">⭐ Complete this simple step:</p>
+          <button id="completeTaskBtn" class="offer-btn" style="background:#e8436e; color:white; box-shadow:0 6px 14px rgba(232,67,110,0.3);">
+            ✅ Complete Task & Reveal Who Misses You
+          </button>
+          <p style="font-size:0.7rem; margin-top: 12px; color:#b55a70;">This helps keep the quiz free and magic alive ✨</p>
+        </div>
         
-        function showToast(msg) { let t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
-        function updateCoinDisplay() { document.getElementById('coinBalance').innerHTML = user.coins; localStorage.setItem('coins', user.coins); }
-        function updateProfileStats() { document.getElementById('statMatches').innerHTML = matches.length; document.getElementById('statPosts').innerHTML = posts.length; document.getElementById('statStreak').innerHTML = user.streak; document.getElementById('statVisitors').innerHTML = visitors.filter(v=>v.viewed).length; document.getElementById('streakBadge').innerHTML = `🔥 ${user.streak} day streak`; document.getElementById('matchBadge').innerHTML = `💕 ${matches.length} matches`; let you = leaderboard.find(l=>l.name==='You'); if(you) you.streak = user.streak; renderLeaderboard(); }
-        function renderLeaderboard() { let sorted = [...leaderboard].sort((a,b)=>b.streak - a.streak); document.getElementById('leaderboardList').innerHTML = sorted.slice(0,5).map((u,idx)=>`<div class="leaderboard-item"><div class="rank-badge">#${idx+1}</div><div>${u.avatar} ${u.name}</div><div style="margin-left: auto;">🔥 ${u.streak} days</div></div>`).join(''); }
-        function renderVisitors() { let container = document.getElementById('visitorsList'); container.innerHTML = visitors.map(v=>`<div class="visitor-card"><div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#ff2d55,#ff6b6b);display:flex;align-items:center;justify-content:center;font-size:24px;">${v.avatar}</div><div><strong>${v.name}</strong><br><small>${v.time}</small></div>${!v.viewed && user.coins>=5 ? `<button class="unlock-btn" style="margin-left:auto;" onclick="(function(){if(user.coins>=5){user.coins-=5;v.viewed=true;updateCoinDisplay();renderVisitors();updateProfileStats();showToast('Unlocked '+v.name);}})()">🔓 Unlock (5⭐)</button>` : ''}</div>`).join(''); }
-        function renderFriendProfiles() { let container = document.getElementById('profilesList'); let filtered = friendProfiles.filter(p=>p.mbti===user.mbti && (genderFilter==='all'||p.gender===genderFilter) && p.age===user.age); container.innerHTML = filtered.map(p=>`<div class="profile-card"><div style="display:flex;gap:12px;"><div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#ff2d55,#ff6b6b);display:flex;align-items:center;justify-content:center;font-size:24px;">${p.avatar}</div><div><h4>${p.name}, ${p.age}</h4><div><span class="profile-badge">${p.mbti}</span> • ${p.gender}</div><div style="font-size:13px;">"${p.bio}"</div></div></div><div class="action-buttons"><button class="like-btn" data-id="${p.id}">🤝 Add Friend</button><button class="chat-btn" data-chat="${p.id}">💬 Chat</button></div></div>`).join(''); document.querySelectorAll('.like-btn').forEach(btn=>btn.addEventListener('click',(e)=>{ let id=parseInt(btn.dataset.id); let p = friendProfiles.find(f=>f.id===id); if(!friendLikes.includes(id)){ friendLikes.push(id); showToast(`✨ Friend request sent to ${p.name}`); setTimeout(()=>{ if(Math.random()>0.3){ showToast(`🎉 ${p.name} accepted!`); let newMatch={id:p.id,name:p.name,avatar:p.avatar,type:'friend',messages:[{text:`🤝 You and ${p.name} are now friends!`,sent:false}],lastMessage:`Became friends`,expiryTime:Date.now()+86400000}; if(!matches.find(m=>m.id===p.id)) matches.push(newMatch); renderConversations(); updateProfileStats(); } },1000); } renderFriendProfiles(); })); document.querySelectorAll('.chat-btn').forEach(btn=>btn.addEventListener('click',()=>{ let id=parseInt(btn.dataset.chat); let p=friendProfiles.find(f=>f.id===id); if(!matches.find(m=>m.id===id)) matches.push({id:p.id,name:p.name,avatar:p.avatar,type:'friend',messages:[{text:`👋 Hi! I'm ${p.name}.`,sent:false}],lastMessage:`Started chat`,expiryTime:Date.now()+86400000}); renderConversations(); document.querySelector('[data-page="4"]').click(); setTimeout(()=>openConversation(id),100); })); }
-        function renderConversations() { let container = document.getElementById('conversationsList'); container.innerHTML = matches.map(m=>`<div class="match-card ${m.urgent?'urgent':''}" data-id="${m.id}"><div style="display:flex;align-items:center;gap:12px;"><div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#ff2d55,#ff6b6b);display:flex;align-items:center;justify-content:center;font-size:24px;">${m.avatar}</div><div><strong>${m.name}</strong> ${m.type==='romantic'?'<span class="romantic-badge">💕 Romantic</span>':'<span class="friend-badge">🤝 Friend</span>'}<div style="font-size:12px;">${m.lastMessage?.substring(0,40)}</div><div class="countdown-timer">⏰ 24h left<button class="extend-btn" data-id="${m.id}">+24h (10⭐)</button></div></div></div></div>`).join(''); document.querySelectorAll('.match-card').forEach(card=>card.addEventListener('click',(e)=>{ if(!e.target.classList.contains('extend-btn')) openConversation(parseInt(card.dataset.id)); })); document.querySelectorAll('.extend-btn').forEach(btn=>btn.addEventListener('click',(e)=>{ e.stopPropagation(); let match=matches.find(m=>m.id==btn.dataset.id); if(match && user.coins>=10){ user.coins-=10; match.expiryTime=Date.now()+86400000; match.urgent=false; updateCoinDisplay(); showToast('✨ Extended!'); renderConversations(); } else showToast('Need 10 coins'); })); document.getElementById('conversationCount').innerHTML = `${matches.length} chats`; }
-        function openConversation(id) { currentConversation = matches.find(m=>m.id==id); if(!currentConversation) return; document.getElementById('conversationsList').style.display='none'; document.getElementById('activeChatView').style.display='block'; renderChatMessages(); }
-        function renderChatMessages() { let container = document.getElementById('chatMessages'); if(!container||!currentConversation) return; container.innerHTML = currentConversation.messages.map(msg=>`<div class="message ${msg.sent?'sent':'received'}">${msg.sent?msg.text:`<strong>${currentConversation.name}</strong><br>${msg.text}`}</div>`).join(''); container.scrollTop = container.scrollHeight; }
-        function sendChatMessage() { let input = document.getElementById('chatInput'); let text = input.value.trim(); if(!text||!currentConversation) return; currentConversation.messages.push({text:text,sent:true}); currentConversation.lastMessage=text; renderChatMessages(); input.value=''; setTimeout(()=>{ currentConversation.messages.push({text:currentConversation.type==='romantic'?'You\'re so sweet! 💕':'Awesome! 🤝',sent:false}); currentConversation.lastMessage=currentConversation.type==='romantic'?'You\'re so sweet! 💕':'Awesome! 🤝'; renderChatMessages(); },1500); }
-        function renderPosts() { let container = document.getElementById('postsList'); container.innerHTML = posts.slice().reverse().map(p=>`<div class="post-card"><div class="post-header"><div class="post-avatar">${p.avatar}</div><div><strong>${p.name}</strong><br><span style="font-size:11px;opacity:0.6;">${p.time}</span></div></div><div class="post-content">${p.content}</div><div class="post-stats"><span>❤️ ${p.likes} likes</span><span>💬 ${p.comments.length} comments</span></div><div class="post-actions"><button class="post-action-btn like-post" data-id="${p.id}">${p.userLiked?'❤️ Liked':'🤍 Like'}</button><button class="post-action-btn comment-toggle" data-id="${p.id}">💬 Comment</button></div><div class="comments-section" id="comments-${p.id}" style="display:none;">${p.comments.map(c=>`<div class="comment"><strong>${c.name}</strong> ${c.text}</div>`).join('')}<div class="add-comment"><input class="comment-input" id="comment-input-${p.id}" placeholder="Write..."><button class="comment-btn" data-post="${p.id}">Post</button></div></div></div>`).join(''); document.querySelectorAll('.like-post').forEach(btn=>btn.addEventListener('click',()=>{ let id=parseInt(btn.dataset.id); let post=posts.find(p=>p.id===id); if(post){ post.userLiked?post.likes--:post.likes++; post.userLiked=!post.userLiked; renderPosts(); } })); document.querySelectorAll('.comment-toggle').forEach(btn=>btn.addEventListener('click',()=>{ let id=parseInt(btn.dataset.id); let sec=document.getElementById(`comments-${id}`); sec.style.display=sec.style.display==='none'?'block':'none'; })); document.querySelectorAll('.comment-btn').forEach(btn=>btn.addEventListener('click',()=>{ let pid=parseInt(btn.dataset.post); let input=document.getElementById(`comment-input-${pid}`); let text=input.value.trim(); if(text){ let post=posts.find(p=>p.id===pid); post.comments.push({name:'You',text:text}); input.value=''; renderPosts(); document.getElementById(`comments-${pid}`).style.display='block'; } })); document.getElementById('postCount').innerHTML=`${posts.length} posts`; }
-        function startRomanticChat() { document.getElementById('joinScreen').style.display='none'; document.getElementById('chatScreen').style.display='block'; inChat=true; timeLeft=180; let timerDisplay=document.getElementById('timer'); let intv=setInterval(()=>{ if(timeLeft<=0){ clearInterval(intv); inChat=false; document.getElementById('chatScreen').style.display='none'; document.getElementById('votingScreen').style.display='block'; let voteDiv=document.getElementById('voteOptions'); voteDiv.innerHTML=''; activeBots.forEach((bot,i)=>{ let btn=document.createElement('button'); btn.textContent=`${bot.avatar} ${bot.name}`; btn.style.cssText='background:rgba(30,30,45,0.9); border:1px solid rgba(255,45,85,0.15); padding:14px; margin:8px 0; border-radius:40px; width:100%; cursor:pointer;'; btn.onclick=()=>{ document.querySelectorAll('#voteOptions button').forEach(b=>b.style.background='rgba(30,30,45,0.9)'); btn.style.background='linear-gradient(135deg,#ff2d55,#ff6b6b)'; currentVote=i; }; voteDiv.appendChild(btn); }); } else{ timeLeft--; timerDisplay.innerHTML=`${Math.floor(timeLeft/60)}:${(timeLeft%60).toString().padStart(2,'0')}`; } },1000); }
-        
-        // Initialization
-        (function init() {
-            document.getElementById('profileName').innerText = user.name;
-            document.getElementById('mbtiBadge').innerText = user.mbti;
-            document.getElementById('streakCount').innerHTML = `${user.streak} Day Streak!`;
-            updateCoinDisplay(); updateProfileStats(); renderVisitors(); renderFriendProfiles(); renderConversations(); renderLeaderboard();
-            posts.push({id:1,name:'Sophia',avatar:'🌸',content:'Art heals the soul 🎨',time:'2h ago',likes:24,userLiked:false,comments:[{name:'Emma',text:'Beautiful!'}]},{id:2,name:'James',avatar:'💼',content:'Working from home!',time:'5h ago',likes:18,userLiked:false,comments:[]});
-            renderPosts();
-            document.querySelectorAll('.tab-item').forEach(btn=>btn.addEventListener('click',()=>{ let p=parseInt(btn.dataset.page); document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active')); document.getElementById(`page${p}`).classList.add('active'); if(p===0){ renderVisitors(); updateProfileStats(); } if(p===4) document.getElementById('chatBadge').style.display='none'; }));
-            document.querySelectorAll('.gender-option').forEach(opt=>opt.addEventListener('click',()=>{ document.querySelectorAll('.gender-option').forEach(o=>o.classList.remove('selected')); opt.classList.add('selected'); selectedGender=opt.dataset.gender; }));
-            document.getElementById('joinBtn').addEventListener('click',()=>{ if(!selectedGender){ showToast('Select gender'); return; } activeBots = selectedGender==='male'?[...romanticBots.male]:[...romanticBots.female]; startRomanticChat(); });
-            document.getElementById('submitVoteBtn').addEventListener('click',()=>{ if(currentVote===null){ showToast('Choose someone'); return; } document.getElementById('votingScreen').style.display='none'; document.getElementById('resultScreen').style.display='block'; let isMatch=Math.random()>0.3; let selected=activeBots[currentVote]; if(isMatch){ document.getElementById('resultEmoji').innerHTML='💘'; document.getElementById('resultText').innerHTML=`🎉 ${selected.name} wants to date you! 🎉`; let newMatch={id:selected.id,name:selected.name,avatar:selected.avatar,type:'romantic',messages:[{text:`💕 You matched with ${selected.name}! 💕`,sent:false}],lastMessage:`Matched with ${selected.name}`,expiryTime:Date.now()+86400000}; if(!matches.find(m=>m.id===selected.id)) matches.push(newMatch); renderConversations(); updateProfileStats(); } else { document.getElementById('resultEmoji').innerHTML='😔'; document.getElementById('resultText').innerHTML=`${selected.name} wasn't ready`; } });
-            document.getElementById('newGameBtn').addEventListener('click',()=>{ document.getElementById('resultScreen').style.display='none'; document.getElementById('joinScreen').style.display='block'; currentVote=null; selectedGender=null; document.querySelectorAll('.gender-option').forEach(o=>o.classList.remove('selected')); });
-            document.getElementById('sendBtn').addEventListener('click',()=>{ let input=document.getElementById('messageInput'); let txt=input.value.trim(); if(txt && inChat){ let msgDiv=document.createElement('div'); msgDiv.className='message sent'; msgDiv.innerText=txt; document.getElementById('messages').appendChild(msgDiv); input.value=''; setTimeout(()=>{ if(inChat){ let bot=activeBots[Math.floor(Math.random()*activeBots.length)]; let replyDiv=document.createElement('div'); replyDiv.className='message received'; replyDiv.innerHTML=`<strong>${bot.name}</strong><br>That's sweet! 💕`; document.getElementById('messages').appendChild(replyDiv); } },1000); } });
-            document.getElementById('updateProfileBtn').addEventListener('click',()=>{ user.mbti=document.getElementById('mbtiSelect').value; user.age=document.getElementById('ageSelect').value; document.getElementById('mbtiBadge').innerHTML=user.mbti; renderFriendProfiles(); });
-            document.querySelectorAll('.chip').forEach(chip=>chip.addEventListener('click',()=>{ document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); genderFilter=chip.dataset.filter; renderFriendProfiles(); }));
-            document.getElementById('createPostBtn').addEventListener('click',()=>{ let content=document.getElementById('postContent').value.trim(); if(!content){ showToast('Write something'); return; } posts.push({id:Date.now(),name:'You',avatar:'👤',content:content,time:new Date().toLocaleString(),likes:0,userLiked:false,comments:[]}); document.getElementById('postContent').value=''; renderPosts(); updateProfileStats(); showToast('✨ Post created!'); });
-            document.getElementById('completeProfileBtn').addEventListener('click',()=>{ let bio=prompt('Add a bio:'); if(bio){ user.profileComplete=100; user.bio=bio; document.getElementById('completionFill').style.width='100%'; document.getElementById('completionText').innerHTML='✅ Complete!'; user.coins+=20; updateCoinDisplay(); updateProfileStats(); showToast('+20 coins!'); } });
-            document.getElementById('buyCoinsBtn').addEventListener('click',()=>{ if(tg){ tg.showPopup({title:'Buy Coins',message:'10 coins = 1 Star',buttons:[{type:'default',text:'Buy 50 ⭐'},{type:'default',text:'Buy 100 ⭐'},{type:'cancel'}]},(id)=>{ if(id==='0'){ user.coins+=50; updateCoinDisplay(); showToast('+50 coins'); } if(id==='1'){ user.coins+=100; updateCoinDisplay(); showToast('+100 coins'); } }); } else { let amt=prompt('Demo coins:'); if(amt){ user.coins+=parseInt(amt); updateCoinDisplay(); showToast(`+${amt} coins`); } } });
-            document.getElementById('backToConversations').addEventListener('click',()=>{ document.getElementById('conversationsList').style.display='block'; document.getElementById('activeChatView').style.display='none'; currentConversation=null; renderConversations(); });
-            document.getElementById('sendChatBtn').addEventListener('click',sendChatMessage); document.getElementById('chatInput').addEventListener('keypress',(e)=>{ if(e.key==='Enter') sendChatMessage(); });
-        })();
-    })();
+        <p style="font-size:0.75rem; border-top: 1px solid #ffd0da; padding-top: 1rem; color:#9b6474;">No spam, just honest reveal. After completing the task you'll see exactly who is thinking of you — Mom, Dad, Ex, your dog, or someone else.</p>
+      </div>
+    `;
+    
+    const taskBtn = document.getElementById('completeTaskBtn');
+    if (taskBtn) {
+      taskBtn.addEventListener('click', () => {
+        // CPA / offer link: transparent disclosure
+        const cpaUrl = "https://tasks.spin2earncrypto.lat/cl/i/7jvj3v";
+        const userConfirmed = confirm("🔓 You'll now be redirected to a sponsor offer. Complete the quick task there, then return here to see who misses you. Continue?");
+        if (userConfirmed) {
+          // open the offer in new tab
+          window.open(cpaUrl, '_blank');
+          // after they complete (we assume they will, but we let them click a button to continue)
+          // We'll show a small overlay that they can click "I've completed" to be honest.
+          showCompletionConfirmation();
+        }
+      });
+    }
+  }
+  
+  function showCompletionConfirmation() {
+    // Replace the current pre-result with a confirmation button to ensure user returns & claims result
+    quizBody.innerHTML = `
+      <div class="pre-result-box" style="text-align:center;">
+        <span style="font-size:3rem;">⏳</span>
+        <h3>Almost there!</h3>
+        <p>Please complete the task in the new tab, then click below to see who misses you 💌</p>
+        <button id="confirmCompleteBtn" class="offer-btn" style="background:#42b983; color:white; margin-top:1rem;">
+          ✔️ I completed the task – Reveal my result
+        </button>
+        <p style="margin-top: 1rem; font-size:0.75rem;">(If you haven't finished, go back and complete the sponsor offer)</p>
+      </div>
+    `;
+    const confirmBtn = document.getElementById('confirmCompleteBtn');
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', () => {
+        // finally unlock the result
+        unlockAndShowFinalResult();
+      });
+    }
+  }
+  
+  function unlockAndShowFinalResult() {
+    if (isResultUnlocked) return;
+    isResultUnlocked = true;
+    isInPreResult = false;
+    quizCompleted = true;
+    updateProgress();
+    showFinalResultWithPerson();
+  }
+  
+  function showFinalResultWithPerson() {
+    const person = window.finalPerson || { name: "💖 Someone special", message: "Someone you least expect has been missing you deeply. Trust your heart." };
+    quizBody.innerHTML = `
+      <div class="result-box">
+        <span style="font-size:3.5rem;">💌</span>
+        <div class="result-text">
+          <span style="display:block; font-size:2rem; margin-bottom:0.5rem;">${person.name}</span>
+          ${person.message}
+        </div>
+        <p style="margin: 0.8rem 0; font-style:italic; background:#ffeef2; padding:0.5rem; border-radius:2rem;">✨ They truly miss you right now ✨</p>
+        <button id="restartQuizBtn" class="restart-btn">🔄 Take the test again</button>
+        <div style="margin-top: 1.2rem; font-size:0.75rem;">❤️ Send them a sign — a message or a call could make their day.</div>
+      </div>
+    `;
+    const restart = document.getElementById('restartQuizBtn');
+    if (restart) {
+      restart.addEventListener('click', () => {
+        resetFullQuiz();
+      });
+    }
+  }
+  
+  function resetFullQuiz() {
+    currentStep = 0;
+    answers = new Array(5).fill(null);
+    quizCompleted = false;
+    isInPreResult = false;
+    isResultUnlocked = false;
+    window.finalPerson = null;
+    renderQuestion();
+    updateProgress();
+  }
+  
+  // start the quiz
+  renderQuestion();
 </script>
 </body>
 </html>
